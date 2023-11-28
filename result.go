@@ -17,6 +17,7 @@
 package cni
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 
@@ -48,6 +49,7 @@ type Result struct {
 	Interfaces map[string]*Config
 	DNS        []types.DNS
 	Routes     []*types.Route
+	Data       []json.RawMessage
 	raw        []*types100.Result
 }
 
@@ -81,6 +83,9 @@ func (c *libcni) createResult(results []*types100.Result) (*Result, error) {
 
 	// Walk through all the results
 	for _, result := range results {
+		if result.Data != nil {
+			r.Data = append(r.Data, result.Data)
+		}
 		// Walk through all the interface in each result
 		for _, intf := range result.Interfaces {
 			r.Interfaces[intf.Name] = &Config{
